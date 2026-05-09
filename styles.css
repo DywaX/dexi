@@ -431,6 +431,7 @@ h2 {
   gap: 12px;
 }
 
+.select-label,
 .room-form label {
   display: grid;
   gap: 7px;
@@ -439,6 +440,7 @@ h2 {
   font-weight: 800;
 }
 
+.select-label select,
 .room-form input {
   width: 100%;
   padding: 12px;
@@ -448,9 +450,17 @@ h2 {
   outline: none;
 }
 
+.select-label select:focus,
 .room-form input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.14);
+}
+
+.store-hint {
+  margin: 14px 0 16px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .room-form .button {

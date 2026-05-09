@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Dexi Room magazalari, kataloglari ve yetkili cihazlari yonetme paneli."
+    >
+    <title>Dexi Room | Yonetim Paneli</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="admin.css">
+  </head>
+  <body>
+    <header class="admin-header">
+      <div class="container header-grid">
+        <a class="brand" href="index.html" aria-label="Dexi Room musteri ekranina don">
+          <span class="brand-mark">DR</span>
+          <span>
+            <strong>Dexi Room Panel</strong>
+            <small>Magaza, katalog ve cihaz yonetimi</small>
+          </span>
+        </a>
+        <div class="header-actions">
+          <a class="button button-light" href="index.html">Musteri ekranina don</a>
+          <button class="button button-dark is-hidden" type="button" data-logout>
+            Cikis yap
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="login-screen" data-login-screen>
+        <div class="container login-grid">
+          <div class="login-copy">
+            <p class="eyebrow">Guvenli panel</p>
+            <h1>Magazalari ve yetkili cihazlari tek yerden yonetin.</h1>
+            <p>
+              Kod bilmeden yeni magaza ekleyin, katalog dosyasi yukleyin,
+              urunleri duzenleyin ve bagli yetkili cihazlari kontrol edin.
+            </p>
+          </div>
+
+          <form class="login-card" data-login-form>
+            <div>
+              <p class="eyebrow">Panel girisi</p>
+              <h2>Kullanici bilgileri</h2>
+              <p class="helper">
+                Demo icin kullanici adi <strong>admin</strong>, sifre
+                <strong>dexi123</strong>.
+              </p>
+            </div>
+            <label>
+              Kullanici adi
+              <input type="text" name="username" autocomplete="username" required>
+            </label>
+            <label>
+              Sifre
+              <input type="password" name="password" autocomplete="current-password" required>
+            </label>
+            <p class="form-error" data-login-error role="alert"></p>
+            <button class="button button-primary button-full" type="submit">
+              Panele gir
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section class="dashboard is-hidden" data-dashboard>
+        <div class="container">
+          <div class="dashboard-hero">
+            <div>
+              <p class="eyebrow">Yonetim alani</p>
+              <h1>Magaza kataloglarini ayri tutun, cihaz baglantilarini yonetin.</h1>
+            </div>
+            <button class="button button-primary" type="button" data-add-store>
+              + Yeni magaza
+            </button>
+          </div>
+
+          <div class="stats-grid" aria-label="Panel ozeti">
+            <article>
+              <span data-store-count>0</span>
+              <strong>Magaza</strong>
+            </article>
+            <article>
+              <span data-product-count>0</span>
+              <strong>Toplam urun</strong>
+            </article>
+            <article>
+              <span data-device-count>0</span>
+              <strong>Bagli cihaz</strong>
+            </article>
+          </div>
+
+          <div class="admin-layout">
+            <aside class="store-sidebar">
+              <div class="panel-heading">
+                <p class="eyebrow">Magazalar</p>
+                <h2>Secim yap</h2>
+              </div>
+              <div class="store-list" data-store-list></div>
+            </aside>
+
+            <section class="detail-panel" data-detail-panel>
+              <div class="detail-header">
+                <div>
+                  <p class="eyebrow">Katalog ayarlari</p>
+                  <h2 data-detail-title>Magaza secin</h2>
+                </div>
+                <button class="button button-danger-light" type="button" data-delete-store>
+                  Magazayi sil
+                </button>
+              </div>
+
+              <div class="form-grid">
+                <label>
+                  Magaza adi
+                  <input type="text" data-store-name placeholder="Ornek: Kadikoy Sube">
+                </label>
+                <label>
+                  Katalog dosyasi yukle
+                  <input type="file" accept=".json,.csv" data-catalog-file>
+                </label>
+              </div>
+              <p class="helper">
+                JSON veya CSV yukleyebilirsiniz. CSV basliklari:
+                <code>name,width,depth,icon</code>. Olculer metre olarak girilir.
+              </p>
+              <p class="notice" data-import-status></p>
+
+              <div class="section-title">
+                <div>
+                  <p class="eyebrow">Urunler</p>
+                  <h3>Katalog satirlari</h3>
+                </div>
+                <button class="button button-light" type="button" data-add-product>
+                  + Urun ekle
+                </button>
+              </div>
+
+              <div class="table-wrap">
+                <table class="product-table">
+                  <thead>
+                    <tr>
+                      <th>Urun adi</th>
+                      <th>Genislik (m)</th>
+                      <th>Derinlik (m)</th>
+                      <th>Ikon</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody data-product-rows></tbody>
+                </table>
+              </div>
+
+              <div class="section-title device-title">
+                <div>
+                  <p class="eyebrow">Yetkili cihazlar</p>
+                  <h3>Baglanti izinleri</h3>
+                </div>
+                <button class="button button-danger-light" type="button" data-disconnect-all>
+                  Hepsinin baglantisini kopar
+                </button>
+              </div>
+
+              <div class="device-form">
+                <label>
+                  Cihaz adi
+                  <input type="text" data-device-name placeholder="Ornek: Satis tableti 1">
+                </label>
+                <button class="button button-dark" type="button" data-grant-device>
+                  Yetki ver
+                </button>
+              </div>
+              <div class="device-list" data-device-list></div>
+
+              <div class="save-row">
+                <p class="notice" data-save-status></p>
+                <button class="button button-primary" type="button" data-save-store>
+                  Degisiklikleri kaydet
+                </button>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="data-store.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-const catalog = [
+const fallbackCatalog = [
   { id: "koltuk", name: "Uc'lu Koltuk", width: 2.2, depth: 0.9, icon: "K" },
   { id: "berjer", name: "Berjer", width: 0.8, depth: 0.85, icon: "B" },
   { id: "sehpa", name: "Orta Sehpa", width: 1.1, depth: 0.6, icon: "S" },
@@ -7,8 +7,25 @@ const catalog = [
   { id: "dolap", name: "Vitrin Dolap", width: 1.2, depth: 0.55, icon: "D" },
 ];
 
+const dataStore = window.DexiRoomData;
+let catalog = [...fallbackCatalog];
+
+const escapeHtml = (value) =>
+  String(value).replace(/[&<>"']/g, (character) => {
+    const entities = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+
+    return entities[character];
+  });
+
 const state = {
   approved: false,
+  storeId: dataStore ? dataStore.getActiveStoreId() : "fallback-store",
   room: {
     width: 4,
     depth: 3.5,
@@ -26,6 +43,8 @@ const elements = {
   roomSection: document.querySelector("[data-room-section]"),
   catalogSection: document.querySelector("[data-catalog-section]"),
   catalogList: document.querySelector("[data-catalog-list]"),
+  storeSelect: document.querySelector("[data-store-select]"),
+  storeHint: document.querySelector("[data-store-hint]"),
   roomForm: document.querySelector("[data-room-form]"),
   roomStage: document.querySelector("[data-room-stage]"),
   conflictLayer: document.querySelector("[data-conflict-layer]"),
@@ -44,6 +63,48 @@ const formatMeter = (value) =>
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   });
+
+const getStores = () =>
+  dataStore
+    ? dataStore.loadStores()
+    : [
+        {
+          id: "fallback-store",
+          name: "Ornek Magaza",
+          products: fallbackCatalog,
+          devices: [],
+        },
+      ];
+
+const getActiveStore = () => {
+  const stores = getStores();
+  let activeStore = stores.find((store) => store.id === state.storeId);
+
+  if (!activeStore) {
+    activeStore = stores[0];
+    state.storeId = activeStore.id;
+  }
+
+  return activeStore;
+};
+
+const renderStoreSelect = () => {
+  const stores = getStores();
+
+  elements.storeSelect.innerHTML = stores
+    .map((store) => `<option value="${escapeHtml(store.id)}">${escapeHtml(store.name)}</option>`)
+    .join("");
+  elements.storeSelect.value = state.storeId;
+};
+
+const syncStoreCatalog = () => {
+  const store = getActiveStore();
+
+  catalog = store.products.length > 0 ? store.products : [...fallbackCatalog];
+  renderStoreSelect();
+  elements.storeHint.textContent = `${store.name} katalogunda ${catalog.length} urun var.`;
+  renderCatalog();
+};
 
 const getScale = () => {
   const stageRect = elements.roomStage.getBoundingClientRect();
@@ -98,12 +159,14 @@ const renderCatalog = () => {
     .map(
       (product) => `
         <article class="catalog-item">
-          <span class="catalog-thumb">${product.icon}</span>
+          <span class="catalog-thumb">${escapeHtml(product.icon)}</span>
           <div>
-            <strong>${product.name}</strong>
+            <strong>${escapeHtml(product.name)}</strong>
             <small>${formatMeter(product.width)} m x ${formatMeter(product.depth)} m</small>
           </div>
-          <button type="button" data-add-product="${product.id}" aria-label="${product.name} ekle">+</button>
+          <button type="button" data-add-product="${escapeHtml(product.id)}" aria-label="${escapeHtml(
+        product.name
+      )} ekle">+</button>
         </article>
       `
     )
@@ -261,9 +324,9 @@ const renderPlanner = () => {
     node.style.top = `${item.y * scale.y}px`;
     node.style.width = `${item.width * scale.x}px`;
     node.style.height = `${item.depth * scale.y}px`;
-    node.innerHTML = `<strong>${item.name}</strong><small>${formatMeter(item.width)} x ${formatMeter(
-      item.depth
-    )} m</small>`;
+    node.innerHTML = `<strong>${escapeHtml(item.name)}</strong><small>${formatMeter(
+      item.width
+    )} x ${formatMeter(item.depth)} m</small>`;
     node.classList.toggle("is-conflict", conflictIds.has(item.uid));
     node.addEventListener("pointerdown", startDrag);
     elements.roomStage.appendChild(node);
@@ -332,13 +395,27 @@ const resetDemo = () => {
   state.approved = false;
   state.room = { width: 4, depth: 3.5, height: 2.6 };
   state.items = [];
+  state.storeId = dataStore ? dataStore.getActiveStoreId() : "fallback-store";
   elements.roomForm.elements.width.value = state.room.width;
   elements.roomForm.elements.depth.value = state.room.depth;
   elements.roomForm.elements.height.value = state.room.height;
+  syncStoreCatalog();
   setApproved(false);
 };
 
 elements.approveButton.addEventListener("click", () => setApproved(true));
+
+elements.storeSelect.addEventListener("change", () => {
+  state.storeId = elements.storeSelect.value;
+  state.items = [];
+
+  if (dataStore) {
+    dataStore.setActiveStoreId(state.storeId);
+  }
+
+  syncStoreCatalog();
+  renderPlanner();
+});
 
 elements.roomForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -355,6 +432,10 @@ elements.roomForm.addEventListener("submit", (event) => {
 });
 
 elements.catalogList.addEventListener("click", (event) => {
+  if (!(event.target instanceof Element)) {
+    return;
+  }
+
   const button = event.target.closest("[data-add-product]");
 
   if (!button || !state.approved) {
@@ -378,7 +459,13 @@ elements.roomStage.addEventListener("pointermove", moveDrag);
 elements.roomStage.addEventListener("pointerup", endDrag);
 elements.roomStage.addEventListener("pointercancel", endDrag);
 window.addEventListener("resize", renderPlanner);
+window.addEventListener("storage", () => {
+  state.storeId = dataStore ? dataStore.getActiveStoreId() : state.storeId;
+  state.items = [];
+  syncStoreCatalog();
+  renderPlanner();
+});
 
-renderCatalog();
+syncStoreCatalog();
 updateRoomSummary();
 setApproved(false);

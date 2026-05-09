@@ -30,6 +30,7 @@
           <a href="#qr-flow">QR Akisi</a>
           <a href="#planner">Planlayici</a>
           <a href="#catalog">Katalog</a>
+          <a href="admin.html">Yonetim Paneli</a>
         </nav>
       </div>
     </header>
@@ -114,6 +115,25 @@
               <button class="button button-primary button-full" type="button" data-approve>
                 Musteriyi onayla
               </button>
+            </section>
+
+            <section class="panel-card" data-store-section>
+              <div class="panel-heading">
+                <p class="eyebrow">Magaza secimi</p>
+                <h2>Katalog kaynagi</h2>
+                <p>
+                  Yonetim panelinden eklenen magazalar burada gorunur. QR
+                  baglantisi gercek sistemde dogrudan ilgili magazayi acar.
+                </p>
+              </div>
+              <label class="select-label">
+                Aktif magaza
+                <select data-store-select></select>
+              </label>
+              <p class="store-hint" data-store-hint></p>
+              <a class="button button-secondary button-full" href="admin.html">
+                Panelden katalog duzenle
+              </a>
             </section>
 
             <section class="panel-card is-disabled" data-room-section>
@@ -213,6 +233,7 @@
       </div>
     </footer>
 
+    <script src="data-store.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

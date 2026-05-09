@@ -12,12 +12,29 @@ prototipi.
 - Urunleri oda planinda surukleyerek yerlestirme
 - Sigmayan veya birbirine cakisarak sikisan alanlari kirmizi gosterme
 - Sorunsuz yerlesimde yesil durum bildirimi
+- Kullanici adi ve sifre ile girilen yonetim paneli
+- Birden fazla magaza icin ayri katalog olusturma ve duzenleme
+- JSON veya CSV katalog dosyasi yukleme
+- Yetkili cihaz ekleme, tek cihaz veya tum cihaz baglantilarini koparma
+
+## Panel Girisi
+
+Demo yonetim paneli icin:
+
+- Kullanici adi: `admin`
+- Sifre: `dexi123`
+
+Panel adresi: `admin.html`
 
 ## Dosyalar
 
 - `index.html` - QR akisi, onay paneli, oda formu ve planlayici arayuzu
 - `styles.css` - Responsive uygulama tasarimi
 - `script.js` - Onay, katalog ekleme, surukleme ve cakisiklik kontrolleri
+- `admin.html` - Magaza, katalog ve cihaz yonetimi paneli
+- `admin.css` - Panel arayuzu tasarimi
+- `admin.js` - Panel girisi, katalog yukleme ve cihaz baglanti yonetimi
+- `data-store.js` - Musteri ekrani ve panel arasinda paylasilan yerel veri katmani
 
 ## Calistirma
 
