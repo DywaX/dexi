@@ -16,6 +16,10 @@
           price: 68900,
           category: "Salon",
           swatch: "amber",
+          shape: [
+            { x: 0, y: 0, width: 2.75, depth: 0.9, label: "Oturma" },
+            { x: 0, y: 0.9, width: 1.05, depth: 0.95, label: "Uzanma" },
+          ],
         },
         {
           id: "luna-berjer",
@@ -155,6 +159,17 @@
       price: Number(product.price || product.fiyat || 0),
       category: String(product.category || product.kategori || "Mobilya").trim(),
       swatch: String(product.swatch || product.renk || "amber").trim(),
+      shape: Array.isArray(product.shape)
+        ? product.shape
+            .map((part) => ({
+              x: Number(part.x || 0),
+              y: Number(part.y || 0),
+              width: Number(part.width || part.w || 0),
+              depth: Number(part.depth || part.d || 0),
+              label: String(part.label || "").trim(),
+            }))
+            .filter((part) => part.width > 0 && part.depth > 0)
+        : [],
     };
   };
 
