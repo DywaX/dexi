@@ -113,6 +113,45 @@ const formatCurrency = (value) =>
     maximumFractionDigits: 0,
   });
 
+const getProductKind = (product) => {
+  const text = `${product.id || ""} ${product.name || ""} ${product.category || ""}`.toLowerCase();
+
+  if (text.includes("kose")) {
+    return "corner";
+  }
+
+  if (text.includes("berjer")) {
+    return "armchair";
+  }
+
+  if (text.includes("sehpa") || text.includes("masa")) {
+    return "table";
+  }
+
+  if (text.includes("tv") || text.includes("unite")) {
+    return "tv";
+  }
+
+  if (text.includes("konsol") || text.includes("dolap") || text.includes("vitrin")) {
+    return "cabinet";
+  }
+
+  return "sofa";
+};
+
+const renderProductVisual = (product, size = "catalog") => `
+  <span
+    class="product-visual product-visual-${size}"
+    data-kind="${escapeHtml(getProductKind(product))}"
+    data-swatch="${escapeHtml(product.swatch || "amber")}"
+    aria-hidden="true"
+  >
+    <i></i>
+    <i></i>
+    <i></i>
+  </span>
+`;
+
 const getStores = () =>
   dataStore
     ? dataStore.loadStores()
@@ -323,9 +362,7 @@ const renderCatalog = () => {
     .map(
       (product) => `
         <article class="catalog-item">
-          <span class="catalog-thumb" data-swatch="${escapeHtml(product.swatch || "amber")}">${escapeHtml(
-        product.icon
-      )}</span>
+          ${renderProductVisual(product)}
           <div>
             <strong>${escapeHtml(product.name)}</strong>
             <small>${formatMeter(product.width)} m x ${formatMeter(product.depth)} m</small>
@@ -489,7 +526,7 @@ const renderQuote = () => {
     .map(
       (item) => `
         <article class="quote-item">
-          <span class="quote-item-icon">${escapeHtml(item.icon || "U")}</span>
+          ${renderProductVisual(item, "quote")}
           <div>
             <strong>${escapeHtml(item.name)}</strong>
             <small>${formatMeter(item.width)} m x ${formatMeter(item.depth)} m</small>
