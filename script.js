@@ -61,9 +61,11 @@ const escapeHtml = (value) =>
     return entities[character];
   });
 
+const getStoreIdFromUrl = () => new URLSearchParams(window.location.search).get("store");
+
 const state = {
   approved: false,
-  storeId: dataStore ? dataStore.getActiveStoreId() : "fallback-store",
+  storeId: getStoreIdFromUrl() || (dataStore ? dataStore.getActiveStoreId() : "fallback-store"),
   room: {
     width: 4,
     depth: 3.5,
@@ -81,7 +83,9 @@ const elements = {
   roomSection: document.querySelector("[data-room-section]"),
   catalogSection: document.querySelector("[data-catalog-section]"),
   catalogList: document.querySelector("[data-catalog-list]"),
-  storeSelect: document.querySelector("[data-store-select]"),
+  currentStoreName: document.querySelector("[data-current-store-name]"),
+  currentStoreTitle: document.querySelector("[data-current-store-title]"),
+  currentStoreGroup: document.querySelector("[data-current-store-group]"),
   storeHint: document.querySelector("[data-store-hint]"),
   roomForm: document.querySelector("[data-room-form]"),
   roomStage: document.querySelector("[data-room-stage]"),
@@ -176,21 +180,14 @@ const getActiveStore = () => {
   return activeStore;
 };
 
-const renderStoreSelect = () => {
-  const stores = getStores();
-
-  elements.storeSelect.innerHTML = stores
-    .map((store) => `<option value="${escapeHtml(store.id)}">${escapeHtml(store.name)}</option>`)
-    .join("");
-  elements.storeSelect.value = state.storeId;
-};
-
 const syncStoreCatalog = () => {
   const store = getActiveStore();
 
   catalog = store.products.length > 0 ? store.products : [...fallbackCatalog];
-  renderStoreSelect();
-  elements.storeHint.textContent = `${store.name} katalogunda ${catalog.length} urun var.`;
+  elements.currentStoreName.textContent = store.name;
+  elements.currentStoreTitle.textContent = store.name;
+  elements.currentStoreGroup.textContent = store.groupName || "Grupsuz";
+  elements.storeHint.textContent = `${store.name} QR katalogunda ${catalog.length} urun var.`;
   renderCatalog();
 };
 
@@ -706,7 +703,7 @@ const deleteItem = (itemId) => {
 const loadDemoLayout = () => {
   if (dataStore && dataStore.resetDemoStores) {
     const stores = dataStore.resetDemoStores();
-    state.storeId = stores[0].id;
+    state.storeId = getStoreIdFromUrl() || stores[0].id;
   }
 
   state.approved = true;
@@ -746,13 +743,12 @@ const loadDemoLayout = () => {
 const resetDemo = () => {
   if (dataStore && dataStore.resetDemoStores) {
     const stores = dataStore.resetDemoStores();
-    state.storeId = stores[0].id;
+    state.storeId = getStoreIdFromUrl() || stores[0].id;
   }
 
   state.approved = false;
   state.room = { width: 4, depth: 3.5, height: 2.6 };
   state.items = [];
-  state.storeId = dataStore ? dataStore.getActiveStoreId() : "fallback-store";
   elements.roomForm.elements.width.value = state.room.width;
   elements.roomForm.elements.depth.value = state.room.depth;
   elements.roomForm.elements.height.value = state.room.height;
@@ -761,18 +757,6 @@ const resetDemo = () => {
 };
 
 elements.approveButton.addEventListener("click", () => setApproved(true));
-
-elements.storeSelect.addEventListener("change", () => {
-  state.storeId = elements.storeSelect.value;
-  state.items = [];
-
-  if (dataStore) {
-    dataStore.setActiveStoreId(state.storeId);
-  }
-
-  syncStoreCatalog();
-  renderPlanner();
-});
 
 elements.roomForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -852,7 +836,7 @@ elements.roomStage.addEventListener("pointerup", endDrag);
 elements.roomStage.addEventListener("pointercancel", endDrag);
 window.addEventListener("resize", renderPlanner);
 window.addEventListener("storage", () => {
-  state.storeId = dataStore ? dataStore.getActiveStoreId() : state.storeId;
+  state.storeId = getStoreIdFromUrl() || (dataStore ? dataStore.getActiveStoreId() : state.storeId);
   state.items = [];
   syncStoreCatalog();
   renderPlanner();

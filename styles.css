@@ -466,6 +466,26 @@ h2 {
   font-weight: 700;
 }
 
+.store-identity {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  background: #fff7ed;
+  border: 1px solid rgba(249, 115, 22, 0.24);
+  border-radius: var(--radius-md);
+}
+
+.store-identity span,
+.store-identity small {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.store-identity strong {
+  font-size: 1.15rem;
+}
+
 .room-form .button {
   grid-column: 1 / -1;
 }

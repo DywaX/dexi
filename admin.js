@@ -32,6 +32,9 @@ const elements = {
   storeList: document.querySelector("[data-store-list]"),
   detailTitle: document.querySelector("[data-detail-title]"),
   storeName: document.querySelector("[data-store-name]"),
+  storeGroup: document.querySelector("[data-store-group]"),
+  storeQrLink: document.querySelector("[data-store-qr-link]"),
+  openStoreLink: document.querySelector("[data-open-store-link]"),
   catalogFile: document.querySelector("[data-catalog-file]"),
   importStatus: document.querySelector("[data-import-status]"),
   productRows: document.querySelector("[data-product-rows]"),
@@ -46,6 +49,7 @@ const elements = {
   storeCount: document.querySelector("[data-store-count]"),
   productCount: document.querySelector("[data-product-count]"),
   deviceCount: document.querySelector("[data-device-count]"),
+  groupCount: document.querySelector("[data-group-count]"),
 };
 
 const showDashboard = () => {
@@ -64,6 +68,14 @@ const showLogin = () => {
 const getSelectedStore = () =>
   state.stores.find((store) => store.id === state.selectedStoreId) || state.stores[0];
 
+const getStoreCustomerPath = (storeId) => `index.html?store=${encodeURIComponent(storeId)}`;
+
+const getStoreCustomerUrl = (storeId) => {
+  const url = new URL(getStoreCustomerPath(storeId), window.location.href);
+
+  return url.href;
+};
+
 const saveStores = () => {
   state.stores = storeApi.saveStores(state.stores);
   storeApi.setActiveStoreId(state.selectedStoreId);
@@ -75,16 +87,31 @@ const renderStats = () => {
     (total, store) => total + store.devices.filter((device) => device.connected).length,
     0
   );
+  const groupCount = new Set(state.stores.map((store) => store.groupName || "Grupsuz")).size;
 
   elements.storeCount.textContent = state.stores.length;
   elements.productCount.textContent = productCount;
   elements.deviceCount.textContent = connectedDeviceCount;
+  elements.groupCount.textContent = groupCount;
 };
 
 const renderStoreList = () => {
-  elements.storeList.innerHTML = state.stores
+  const storesByGroup = state.stores.reduce((groups, store) => {
+    const groupName = store.groupName || "Grupsuz";
+
+    groups[groupName] = groups[groupName] || [];
+    groups[groupName].push(store);
+    return groups;
+  }, {});
+
+  elements.storeList.innerHTML = Object.entries(storesByGroup)
     .map(
-      (store) => `
+      ([groupName, stores]) => `
+        <div class="store-group">
+          <span class="store-group-title">${escapeHtml(groupName)}</span>
+          ${stores
+            .map(
+              (store) => `
         <button
           class="store-button ${store.id === state.selectedStoreId ? "is-active" : ""}"
           type="button"
@@ -95,6 +122,10 @@ const renderStoreList = () => {
             store.devices.filter((device) => device.connected).length
           } bagli cihaz</small>
         </button>
+      `
+            )
+            .join("")}
+        </div>
       `
     )
     .join("");
@@ -201,6 +232,9 @@ const renderDetail = () => {
   state.selectedStoreId = store.id;
   elements.detailTitle.textContent = store.name;
   elements.storeName.value = store.name;
+  elements.storeGroup.value = store.groupName || "Grupsuz";
+  elements.storeQrLink.textContent = getStoreCustomerUrl(store.id);
+  elements.openStoreLink.href = getStoreCustomerPath(store.id);
   elements.catalogFile.value = "";
   elements.importStatus.textContent = "";
   elements.saveStatus.textContent = "";
@@ -279,6 +313,7 @@ elements.addStore.addEventListener("click", () => {
   const newStore = {
     id: storeApi.createId("store"),
     name: `Yeni Magaza ${state.stores.length + 1}`,
+    groupName: "Yeni Grup",
     products: [],
     devices: [],
   };
@@ -446,6 +481,7 @@ elements.saveStore.addEventListener("click", () => {
   }
 
   store.name = name;
+  store.groupName = elements.storeGroup.value.trim() || "Grupsuz";
   store.products = getProductsFromRows();
   saveStores();
   renderPanel();

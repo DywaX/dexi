@@ -122,17 +122,18 @@
 
             <section class="panel-card" data-store-section>
               <div class="panel-heading">
-                <p class="eyebrow">Magaza secimi</p>
-                <h2>Katalog kaynagi</h2>
+                <p class="eyebrow">Bu QR'a ait magaza</p>
+                <h2 data-current-store-name>Magaza katalogu</h2>
                 <p>
-                  Yonetim panelinden eklenen magazalar burada gorunur. QR
-                  baglantisi gercek sistemde dogrudan ilgili magazayi acar.
+                  Musteri bu ekranda sadece QR kodunu okuttugu magazanin
+                  katalogunu gorur. Baska magaza secimi yapamaz.
                 </p>
               </div>
-              <label class="select-label">
-                Aktif magaza
-                <select data-store-select></select>
-              </label>
+              <div class="store-identity">
+                <span>Magaza</span>
+                <strong data-current-store-title>Demo magaza</strong>
+                <small data-current-store-group>Grup bilgisi</small>
+              </div>
               <p class="store-hint" data-store-hint></p>
               <a class="button button-secondary button-full" href="admin.html">
                 Panelden katalog duzenle

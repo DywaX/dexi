@@ -97,6 +97,10 @@
               <span data-device-count>0</span>
               <strong>Bagli cihaz</strong>
             </article>
+            <article>
+              <span data-group-count>0</span>
+              <strong>Magaza grubu</strong>
+            </article>
           </div>
 
           <div class="admin-layout">
@@ -125,13 +129,31 @@
                   <input type="text" data-store-name placeholder="Ornek: Kadikoy Sube">
                 </label>
                 <label>
+                  Grup / isletme sahibi adi
+                  <input type="text" data-store-group placeholder="Ornek: Yilmaz Mobilya Grubu">
+                </label>
+                <label>
                   Katalog dosyasi yukle
                   <input type="file" accept=".json,.csv" data-catalog-file>
                 </label>
               </div>
+              <div class="qr-link-card">
+                <div>
+                  <p class="eyebrow">Magazaya ozel QR linki</p>
+                  <strong data-store-qr-link>index.html</strong>
+                  <small>
+                    Bu linkten giren musteri sadece bu magazanin katalogunu gorur.
+                  </small>
+                </div>
+                <a class="button button-light" href="#" target="_blank" rel="noreferrer" data-open-store-link>
+                  Musteri linkini ac
+                </a>
+              </div>
               <p class="helper">
                 JSON veya CSV yukleyebilirsiniz. CSV basliklari:
                 <code>name,width,depth,icon</code>. Olculer metre olarak girilir.
+                Ayni isletme sahibine ait magazalara ayni grup adini vererek
+                panelde birlikte takip edebilirsiniz.
               </p>
               <p class="notice" data-import-status></p>
 

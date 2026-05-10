@@ -261,7 +261,7 @@ code {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 24px 0;
 }
@@ -294,7 +294,20 @@ code {
 
 .store-list {
   display: grid;
-  gap: 10px;
+  gap: 14px;
+}
+
+.store-group {
+  display: grid;
+  gap: 8px;
+}
+
+.store-group-title {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .store-button {
@@ -315,6 +328,33 @@ code {
 }
 
 .store-button small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.qr-link-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-top: 16px;
+  padding: 16px;
+  background: #fff7ed;
+  border: 1px solid rgba(249, 115, 22, 0.24);
+  border-radius: var(--radius-md);
+}
+
+.qr-link-card strong,
+.qr-link-card small {
+  display: block;
+}
+
+.qr-link-card strong {
+  overflow-wrap: anywhere;
+  font-size: 0.95rem;
+}
+
+.qr-link-card small {
   color: var(--muted);
   font-weight: 700;
 }
@@ -498,7 +538,8 @@ code {
   .stats-grid,
   .store-list,
   .form-grid,
-  .device-form {
+  .device-form,
+  .qr-link-card {
     grid-template-columns: 1fr;
   }
 }

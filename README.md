@@ -16,6 +16,8 @@ prototipi.
 - Birden fazla magaza icin ayri katalog olusturma ve duzenleme
 - JSON veya CSV katalog dosyasi yukleme
 - Yetkili cihaz ekleme, tek cihaz veya tum cihaz baglantilarini koparma
+- Her magaza icin ayri QR linki
+- Birden fazla magazasi olan isletmeler icin magaza gruplama
 
 ## Panel Girisi
 
@@ -35,6 +37,14 @@ Musteri demosu icin `index.html` sayfasinda:
 3. Urunleri oda planinda surukleyerek yesil/kirmizi uygunluk durumunu gorebilirsiniz.
 4. Alt kisimdaki teklif onizlemesinde secilen urunler ve tahmini toplam gorunur.
 5. `WhatsApp ile teklif iste` butonu demo teklif mesajini hazirlar.
+
+Magazaya ozel QR demosu icin:
+
+- `index.html?store=store-bellora`
+- `index.html?store=store-modern`
+
+Bu linklerden giren musteri magaza secimi yapmaz; sadece linkteki
+magazanin katalogunu gorur.
 
 ## Dosyalar
 

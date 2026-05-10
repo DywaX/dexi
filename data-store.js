@@ -6,6 +6,7 @@
     {
       id: "store-bellora",
       name: "Bellora Concept Demo",
+      groupName: "Yilmaz Mobilya Grubu",
       products: [
         {
           id: "milano-kose",
@@ -85,6 +86,7 @@
     {
       id: "store-modern",
       name: "Modern Ev Demo",
+      groupName: "Yilmaz Mobilya Grubu",
       products: [
         {
           id: "atlas-koltuk",
@@ -176,6 +178,7 @@
   const normalizeStore = (store, index) => ({
     id: String(store.id || createId("store")),
     name: String(store.name || store.magaza || `Magaza ${index + 1}`).trim(),
+    groupName: String(store.groupName || store.grup || store.ownerGroup || "Grupsuz").trim(),
     products: Array.isArray(store.products)
       ? store.products.map((product, productIndex) => normalizeProduct(product, productIndex))
       : [],
