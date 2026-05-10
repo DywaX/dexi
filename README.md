@@ -54,7 +54,11 @@ magazanin katalogunu gorur.
 - `admin.html` - Magaza, katalog ve cihaz yonetimi paneli
 - `admin.css` - Panel arayuzu tasarimi
 - `admin.js` - Panel girisi, katalog yukleme ve cihaz baglanti yonetimi
-- `data-store.js` - Musteri ekrani ve panel arasinda paylasilan yerel veri katmani
+- `site-config.js` - Canli domain ve iletisim e-postasi (QR linkleri ve footer)
+- `404.html` ve `robots.txt` - Temel web sunucu dosyalari
+- `.github/workflows/deploy-pages.yml` - GitHub Pages otomatik yayin (main branch)
+- `supabase-config.js` - Supabase API (yalniz kamusal anahtar)
+- `supabase-schema.sql` - Veritabani semasi
 
 ## Calistirma
 
@@ -66,6 +70,28 @@ python3 -m http.server 8000
 ```
 
 Ardindan `http://localhost:8000` adresini ziyaret edin.
+
+## Canli site: domain, Gmail, GitHub Pages
+
+1. **Domain** satin alin (Google Domains, Cloudflare, Natro vb.). DNS yonlendirmesini
+   barindirma saglayicinizin talimatina gore yapin.
+2. GitHub repo **Settings > Pages** menusunden **Source: GitHub Actions** secin.
+3. `main` branchine push edildiginde `.github/workflows/deploy-pages.yml` ile site
+   yayinlanir (cikti URL’i Actions logunda ve Pages ayarlarinda gorunur).
+4. `site-config.js` dosyasinda:
+   - `publicBaseUrl`: Kalici adres, sonda `/` olmadan (ornek: `https://www.senin-domain.com`
+     veya GitHub icin `https://kullanici.github.io/repo`).
+   - `contactEmail`: Gorunecek Gmail veya kurumsal iletisim adresi.
+     Bu alan dolduruldugunda footer’da `mailto` linki belirir; admin panelinin
+     altinda da ayni iletisim satiri gosterilir.
+5. Ozel domain GitHub Pages ile **Settings > Pages > Custom domain** uzerinden veya
+   barindirmada CNAME/A kayitlari ile baglanir. Domaini aldiktan sonra sadece bu
+   dosyayi guncellemeniz yeterlidir; kodu hatirlamadan `publicBaseUrl` yazmaniz
+   QR linklerinin dogru kopyalanmasi icin onemlidir.
+
+**Not:** Gmail hesabi acmak veya domain satin almak kodla yapilamaz; tarayicidan
+sizin kimliginizle tamamlanmalidir. Teknik tarafda gereken her sey bu repoda ve
+`site-config.js` uzerinden yonetilir.
 
 ## Supabase Kurulumu
 

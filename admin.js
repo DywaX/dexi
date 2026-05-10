@@ -93,9 +93,12 @@ const getSelectedStore = () =>
 const getStoreCustomerPath = (storeId) => `index.html?store=${encodeURIComponent(storeId)}`;
 
 const getStoreCustomerUrl = (storeId) => {
-  const url = new URL(getStoreCustomerPath(storeId), window.location.href);
+  const base =
+    typeof window.getDexiPublicSiteBase === "function"
+      ? window.getDexiPublicSiteBase()
+      : new URL(".", window.location.href).href.replace(/\/+$/, "");
 
-  return url.href;
+  return `${base}/index.html?store=${encodeURIComponent(storeId)}`;
 };
 
 const saveStores = () => {

@@ -7,6 +7,10 @@
       name="description"
       content="Mobilya magazalari icin QR onayli oda olcusu ve urun yerlestirme prototipi."
     >
+    <link rel="canonical" href="">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Dexi Room | QR Mobilya Yerlestirme">
+    <meta property="og:url" content="">
     <title>Dexi Room | QR Mobilya Yerlestirme</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -256,12 +260,18 @@
     <footer class="app-footer">
       <div class="container footer-grid">
         <p>
-          Bu ekran temel prototiptir: gercek QR oturumu, cihaz yetkisi ve katalog
-          verisi sonraki adimda backend ile baglanabilir.
+          Dexi Room magaza içi yerleştirme pilotu — katalog ve teklif verisi yapılandırılabilir;
+          yayın adresi için <strong>site-config.js</strong> içinde domain ve iletişim e-postanı
+          tanımla.
+        </p>
+        <p class="site-contact-line" data-site-contact-row hidden>
+          İletişim:
+          <a data-site-contact-email href="#"></a>
         </p>
       </div>
     </footer>
 
+    <script src="site-config.js"></script>
     <script src="supabase-config.js"></script>
     <script src="data-store.js"></script>
     <script src="script.js"></script>

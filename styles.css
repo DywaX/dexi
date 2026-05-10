@@ -1276,6 +1276,16 @@ h2 {
   margin: 0;
 }
 
+.site-contact-line {
+  margin-top: 14px !important;
+  font-size: 0.94rem;
+}
+
+.site-contact-line a {
+  color: var(--accent, #2754ea);
+  font-weight: 600;
+}
+
 @media (max-width: 980px) {
   .hero-grid,
   .app-grid {

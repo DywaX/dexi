@@ -1,0 +1,6 @@
+# Dexi Room — tarayici botlari için basit kurallar.
+# Kendi domainin hazir olunca bir satirisini acip adresi yaz:
+# Sitemap: https://www.ornek-domain.com/sitemap.xml
+
+User-agent: *
+Allow: /

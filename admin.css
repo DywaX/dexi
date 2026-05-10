@@ -23,6 +23,9 @@
 body {
   margin: 0;
   color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background:
     radial-gradient(circle at top right, rgba(249, 115, 22, 0.12), transparent 30rem),
     linear-gradient(180deg, #fffaf4 0, #f8fafc 42rem);
@@ -542,4 +545,34 @@ code {
   .qr-link-card {
     grid-template-columns: 1fr;
   }
+}
+
+.admin-main-grow {
+  flex: 1;
+}
+
+.admin-footer {
+  margin-top: auto;
+  padding: 32px 0 40px;
+  border-top: 1px solid var(--line);
+  background: transparent;
+}
+
+.admin-footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-footer-meta {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.admin-footer .site-contact-line a {
+  color: var(--primary-dark);
+  font-weight: 600;
 }
