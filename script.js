@@ -935,6 +935,19 @@ elements.quoteList.addEventListener("click", (event) => {
 
 elements.resetDemo.addEventListener("click", resetDemo);
 elements.demoLayout.addEventListener("click", loadDemoLayout);
+elements.whatsappLink.addEventListener("click", () => {
+  if (dataStore && dataStore.createQuoteRequest) {
+    dataStore
+      .createQuoteRequest({
+        storeId: state.storeId,
+        room: state.room,
+        items: state.items,
+      })
+      .catch((error) => {
+        console.warn("Teklif talebi Supabase'e kaydedilemedi.", error);
+      });
+  }
+});
 elements.roomStage.addEventListener("pointermove", moveDrag);
 elements.roomStage.addEventListener("pointerup", endDrag);
 elements.roomStage.addEventListener("pointercancel", endDrag);
@@ -949,3 +962,17 @@ window.addEventListener("storage", () => {
 syncStoreCatalog();
 updateRoomSummary();
 setApproved(false);
+
+if (dataStore && dataStore.hydrateRemoteStores) {
+  dataStore
+    .hydrateRemoteStores()
+    .then(() => {
+      state.storeId = getStoreIdFromUrl() || (dataStore ? dataStore.getActiveStoreId() : state.storeId);
+      state.items = [];
+      syncStoreCatalog();
+      renderPlanner();
+    })
+    .catch((error) => {
+      console.warn("Supabase verisi yuklenemedi, yerel demo kullaniliyor.", error);
+    });
+}

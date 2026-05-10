@@ -57,12 +57,34 @@ const showDashboard = () => {
   elements.dashboard.classList.remove("is-hidden");
   elements.logout.classList.remove("is-hidden");
   renderPanel();
+  hydrateRemotePanel();
 };
 
 const showLogin = () => {
   elements.loginScreen.classList.remove("is-hidden");
   elements.dashboard.classList.add("is-hidden");
   elements.logout.classList.add("is-hidden");
+};
+
+let remoteHydrated = false;
+
+const hydrateRemotePanel = () => {
+  if (remoteHydrated || !storeApi.hydrateRemoteStores) {
+    return;
+  }
+
+  remoteHydrated = true;
+  storeApi
+    .hydrateRemoteStores()
+    .then((stores) => {
+      state.stores = stores;
+      state.selectedStoreId = storeApi.getActiveStoreId();
+      renderPanel();
+    })
+    .catch((error) => {
+      elements.saveStatus.textContent = "Supabase verisi yuklenemedi, yerel veri kullaniliyor.";
+      console.warn("Supabase panel verisi yuklenemedi.", error);
+    });
 };
 
 const getSelectedStore = () =>
@@ -133,11 +155,15 @@ const renderStoreList = () => {
 
 const getProductsFromRows = () => {
   const rows = [...elements.productRows.querySelectorAll("[data-product-row]")];
+  const store = getSelectedStore();
 
   return rows
-    .map((row, index) =>
-      storeApi.normalizeProduct(
+    .map((row, index) => {
+      const existingProduct = store.products.find((product) => product.id === row.dataset.productId) || {};
+
+      return storeApi.normalizeProduct(
         {
+          ...existingProduct,
           id: row.dataset.productId,
           name: row.querySelector("[data-product-name]").value,
           width: row.querySelector("[data-product-width]").value,
@@ -145,8 +171,8 @@ const getProductsFromRows = () => {
           icon: row.querySelector("[data-product-icon]").value,
         },
         index
-      )
-    )
+      );
+    })
     .filter((product) => product.name);
 };
 
@@ -466,6 +492,11 @@ elements.deleteStore.addEventListener("click", () => {
   }
 
   state.stores = state.stores.filter((store) => store.id !== state.selectedStoreId);
+  if (storeApi.deleteStore) {
+    storeApi.deleteStore(state.selectedStoreId).catch((error) => {
+      console.warn("Supabase magaza silme islemi basarisiz.", error);
+    });
+  }
   state.selectedStoreId = state.stores[0].id;
   saveStores();
   renderPanel();

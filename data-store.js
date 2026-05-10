@@ -1,6 +1,9 @@
 (function () {
   const STORES_KEY = "dexiRoomStores";
   const ACTIVE_STORE_KEY = "dexiRoomActiveStore";
+  const supabaseConfig = window.DexiRoomSupabase || {};
+  const supabaseUrl = supabaseConfig.url;
+  const supabaseKey = supabaseConfig.anonKey;
 
   const defaultStores = [
     {
@@ -146,6 +149,37 @@
   const createId = (prefix) =>
     `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
+  const isSupabaseEnabled = () => Boolean(supabaseUrl && supabaseKey);
+
+  const getSupabaseHeaders = (extraHeaders = {}) => ({
+    apikey: supabaseKey,
+    Authorization: `Bearer ${supabaseKey}`,
+    "Content-Type": "application/json",
+    ...extraHeaders,
+  });
+
+  const supabaseRequest = async (path, options = {}) => {
+    if (!isSupabaseEnabled()) {
+      return null;
+    }
+
+    const response = await fetch(`${supabaseUrl}/rest/v1/${path}`, {
+      ...options,
+      headers: getSupabaseHeaders(options.headers),
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(`Supabase request failed: ${response.status} ${message}`);
+    }
+
+    if (response.status === 204) {
+      return null;
+    }
+
+    return response.json();
+  };
+
   const buildCornerShape = (product, width, depth) => {
     const text = `${product.id || ""} ${product.name || ""} ${product.category || ""}`.toLowerCase();
 
@@ -213,10 +247,123 @@
       : [],
   });
 
-  const saveStores = (stores) => {
+  const toDbStore = (store) => ({
+    id: store.id,
+    name: store.name,
+    group_name: store.groupName || "Grupsuz",
+  });
+
+  const toDbProduct = (store, product) => ({
+    id: product.id,
+    store_id: store.id,
+    name: product.name,
+    width: product.width,
+    depth: product.depth,
+    icon: product.icon,
+    price: product.price || 0,
+    category: product.category || "Mobilya",
+    swatch: product.swatch || "amber",
+    shape: product.shape || [],
+  });
+
+  const toDbDevice = (store, device) => ({
+    id: device.id,
+    store_id: store.id,
+    name: device.name,
+    code: device.code,
+    connected: device.connected,
+    last_seen: device.lastSeen,
+  });
+
+  const fromDbStores = (stores, products, devices) =>
+    stores.map((store, index) =>
+      normalizeStore(
+        {
+          id: store.id,
+          name: store.name,
+          groupName: store.group_name,
+          products: products
+            .filter((product) => product.store_id === store.id)
+            .map((product) => ({
+              id: product.id,
+              name: product.name,
+              width: product.width,
+              depth: product.depth,
+              icon: product.icon,
+              price: product.price,
+              category: product.category,
+              swatch: product.swatch,
+              shape: product.shape,
+            })),
+          devices: devices
+            .filter((device) => device.store_id === store.id)
+            .map((device) => ({
+              id: device.id,
+              name: device.name,
+              code: device.code,
+              connected: device.connected,
+              lastSeen: device.last_seen,
+            })),
+        },
+        index
+      )
+    );
+
+  const persistStoreDetails = async (store) => {
+    const productRows = store.products.map((product) => toDbProduct(store, product));
+    const deviceRows = store.devices.map((device) => toDbDevice(store, device));
+
+    await supabaseRequest(`products?store_id=eq.${encodeURIComponent(store.id)}`, {
+      method: "DELETE",
+    });
+    await supabaseRequest(`devices?store_id=eq.${encodeURIComponent(store.id)}`, {
+      method: "DELETE",
+    });
+
+    if (productRows.length) {
+      await supabaseRequest("products?on_conflict=id", {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(productRows),
+      });
+    }
+
+    if (deviceRows.length) {
+      await supabaseRequest("devices?on_conflict=id", {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(deviceRows),
+      });
+    }
+  };
+
+  const persistStores = async (stores) => {
+    if (!isSupabaseEnabled()) {
+      return;
+    }
+
+    const storeRows = stores.map(toDbStore);
+
+    await supabaseRequest("stores?on_conflict=id", {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(storeRows),
+    });
+
+    await Promise.all(stores.map(persistStoreDetails));
+  };
+
+  const saveStores = (stores, options = {}) => {
     const normalizedStores = stores.map((store, index) => normalizeStore(store, index));
 
     localStorage.setItem(STORES_KEY, JSON.stringify(normalizedStores));
+
+    if (options.syncRemote !== false) {
+      persistStores(normalizedStores).catch((error) => {
+        console.warn("Supabase kaydi yapilamadi, yerel veri korunuyor.", error);
+      });
+    }
+
     return normalizedStores;
   };
 
@@ -251,6 +398,56 @@
     localStorage.setItem(ACTIVE_STORE_KEY, storeId);
   };
 
+  const hydrateRemoteStores = async () => {
+    if (!isSupabaseEnabled()) {
+      return loadStores();
+    }
+
+    const [stores, products, devices] = await Promise.all([
+      supabaseRequest("stores?select=*&is_active=eq.true&order=name.asc"),
+      supabaseRequest("products?select=*&order=name.asc"),
+      supabaseRequest("devices?select=*&order=name.asc"),
+    ]);
+
+    if (!Array.isArray(stores) || !stores.length) {
+      return loadStores();
+    }
+
+    const remoteStores = fromDbStores(stores, products || [], devices || []);
+    return saveStores(remoteStores, { syncRemote: false });
+  };
+
+  const deleteStore = async (storeId) => {
+    if (!isSupabaseEnabled()) {
+      return;
+    }
+
+    await supabaseRequest(`products?store_id=eq.${encodeURIComponent(storeId)}`, { method: "DELETE" });
+    await supabaseRequest(`devices?store_id=eq.${encodeURIComponent(storeId)}`, { method: "DELETE" });
+    await supabaseRequest(`stores?id=eq.${encodeURIComponent(storeId)}`, { method: "DELETE" });
+  };
+
+  const createQuoteRequest = async ({ storeId, room, items }) => {
+    if (!isSupabaseEnabled() || !storeId || !items.length) {
+      return;
+    }
+
+    const totalPrice = items.reduce((sum, item) => sum + Number(item.price || 0), 0);
+
+    await supabaseRequest("quote_requests", {
+      method: "POST",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({
+        store_id: storeId,
+        room_width: room.width,
+        room_depth: room.depth,
+        room_height: room.height,
+        items,
+        total_price: totalPrice,
+      }),
+    });
+  };
+
   const resetDemoStores = () => {
     const stores = saveStores(clone(defaultStores));
 
@@ -268,8 +465,12 @@
 
   window.DexiRoomData = {
     createDevice,
+    createQuoteRequest,
     createId,
+    deleteStore,
     getActiveStoreId,
+    hydrateRemoteStores,
+    isSupabaseEnabled,
     loadStores,
     normalizeProduct,
     resetDemoStores,

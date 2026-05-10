@@ -66,3 +66,21 @@ python3 -m http.server 8000
 ```
 
 Ardindan `http://localhost:8000` adresini ziyaret edin.
+
+## Supabase Kurulumu
+
+Canli pilot icin Supabase baglantisi `supabase-config.js` dosyasindadir.
+Veritabanini hazirlamak icin:
+
+1. Supabase panelinde projeyi acin.
+2. `SQL Editor` bolumune girin.
+3. `supabase-schema.sql` dosyasinin tamamini calistirin.
+4. Siteyi yenileyin.
+
+Tablolar hazir olunca paneldeki magaza, urun, cihaz ve teklif talebi verileri
+Supabase'e yazilir. Tablolar hazir degilse uygulama bozulmadan yerel demo
+verisiyle calismaya devam eder.
+
+Not: `supabase-schema.sql` icindeki RLS politikalari ilk tanidik pilot icin
+bilerek aciktir. Herkese acik satis asamasindan once kullanici girisi ve daha
+siki yetki politikalari eklenmelidir.
