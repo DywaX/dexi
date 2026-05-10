@@ -74,6 +74,7 @@ const state = {
   items: [],
   dragging: null,
   activeCategory: "all",
+  selectedItemId: null,
 };
 
 const elements = {
@@ -672,6 +673,7 @@ const renderPlanner = () => {
       </div>
     `;
     node.classList.toggle("is-conflict", conflictIds.has(item.uid));
+    node.classList.toggle("is-selected", state.selectedItemId === item.uid);
     node.addEventListener("pointerdown", startDrag);
     elements.roomStage.appendChild(node);
   });
@@ -691,6 +693,13 @@ const startDrag = (event) => {
   const item = state.items.find((entry) => entry.uid === target.dataset.itemId);
 
   if (!item) {
+    return;
+  }
+
+  if (state.selectedItemId !== item.uid) {
+    state.selectedItemId = item.uid;
+    state.dragging = null;
+    renderPlanner();
     return;
   }
 
@@ -747,12 +756,16 @@ const rotateItem = (itemId, delta) => {
     return;
   }
 
+  state.selectedItemId = item.uid;
   item.rotation = normalizeRotation((item.rotation || 0) + delta);
   renderPlanner();
 };
 
 const deleteItem = (itemId) => {
   state.items = state.items.filter((item) => item.uid !== itemId);
+  if (state.selectedItemId === itemId) {
+    state.selectedItemId = null;
+  }
   renderPlanner();
 };
 
@@ -763,6 +776,7 @@ const loadDemoLayout = () => {
   }
 
   state.approved = true;
+  state.selectedItemId = null;
   state.room = { width: 4, depth: 3.5, height: 2.6 };
   elements.roomForm.elements.width.value = state.room.width;
   elements.roomForm.elements.depth.value = state.room.depth;
@@ -809,6 +823,7 @@ const resetDemo = () => {
   state.approved = false;
   state.room = { width: 4, depth: 3.5, height: 2.6 };
   state.items = [];
+  state.selectedItemId = null;
   elements.roomForm.elements.width.value = state.room.width;
   elements.roomForm.elements.depth.value = state.room.depth;
   elements.roomForm.elements.height.value = state.room.height;
@@ -829,6 +844,7 @@ elements.roomForm.addEventListener("submit", (event) => {
     height: Number(formData.get("height")),
   };
   state.items = [];
+  state.selectedItemId = null;
   renderPlanner();
 });
 
@@ -868,7 +884,19 @@ elements.categoryFilters.addEventListener("click", (event) => {
 
 elements.clearRoom.addEventListener("click", () => {
   state.items = [];
+  state.selectedItemId = null;
   renderPlanner();
+});
+
+elements.roomStage.addEventListener("pointerdown", (event) => {
+  if (!(event.target instanceof Element)) {
+    return;
+  }
+
+  if (!event.target.closest(".furniture-item") && state.selectedItemId) {
+    state.selectedItemId = null;
+    renderPlanner();
+  }
 });
 
 elements.roomStage.addEventListener("click", (event) => {
