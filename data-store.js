@@ -4,23 +4,132 @@
 
   const defaultStores = [
     {
-      id: "store-demo",
-      name: "Ornek Mobilya Magazasi",
+      id: "store-bellora",
+      name: "Bellora Concept Demo",
       products: [
-        { id: "koltuk", name: "Uc'lu Koltuk", width: 2.2, depth: 0.9, icon: "K" },
-        { id: "berjer", name: "Berjer", width: 0.8, depth: 0.85, icon: "B" },
-        { id: "sehpa", name: "Orta Sehpa", width: 1.1, depth: 0.6, icon: "S" },
-        { id: "tv", name: "TV Unitesi", width: 1.8, depth: 0.45, icon: "T" },
-        { id: "masa", name: "Yemek Masasi", width: 1.6, depth: 0.9, icon: "M" },
-        { id: "dolap", name: "Vitrin Dolap", width: 1.2, depth: 0.55, icon: "D" },
+        {
+          id: "milano-kose",
+          name: "Milano Kose Takimi",
+          width: 2.75,
+          depth: 1.85,
+          icon: "K",
+          price: 68900,
+          category: "Salon",
+          swatch: "amber",
+        },
+        {
+          id: "luna-berjer",
+          name: "Luna Berjer",
+          width: 0.82,
+          depth: 0.88,
+          icon: "B",
+          price: 12900,
+          category: "Koltuk",
+          swatch: "green",
+        },
+        {
+          id: "nova-sehpa",
+          name: "Nova Orta Sehpa",
+          width: 1.1,
+          depth: 0.62,
+          icon: "S",
+          price: 7900,
+          category: "Tamamlayici",
+          swatch: "walnut",
+        },
+        {
+          id: "arte-tv",
+          name: "Arte TV Unitesi",
+          width: 1.9,
+          depth: 0.45,
+          icon: "T",
+          price: 18400,
+          category: "TV Unitesi",
+          swatch: "stone",
+        },
+        {
+          id: "mira-masa",
+          name: "Mira Yemek Masasi",
+          width: 1.7,
+          depth: 0.95,
+          icon: "M",
+          price: 24600,
+          category: "Yemek Odasi",
+          swatch: "oak",
+        },
+        {
+          id: "vera-konsol",
+          name: "Vera Konsol",
+          width: 1.55,
+          depth: 0.48,
+          icon: "V",
+          price: 16900,
+          category: "Yemek Odasi",
+          swatch: "cream",
+        },
       ],
       devices: [
         {
           id: "device-demo",
-          name: "Magaza Tableti",
+          name: "Satis Tableti",
           code: "DR-1042",
           connected: true,
           lastSeen: "Bugun aktif",
+        },
+      ],
+    },
+    {
+      id: "store-modern",
+      name: "Modern Ev Demo",
+      products: [
+        {
+          id: "atlas-koltuk",
+          name: "Atlas Uc'lu Koltuk",
+          width: 2.25,
+          depth: 0.92,
+          icon: "A",
+          price: 32900,
+          category: "Koltuk",
+          swatch: "blue",
+        },
+        {
+          id: "rio-ikili",
+          name: "Rio Ikili Koltuk",
+          width: 1.65,
+          depth: 0.88,
+          icon: "R",
+          price: 24900,
+          category: "Koltuk",
+          swatch: "gray",
+        },
+        {
+          id: "polo-puf",
+          name: "Polo Puf",
+          width: 0.7,
+          depth: 0.7,
+          icon: "P",
+          price: 5400,
+          category: "Tamamlayici",
+          swatch: "rose",
+        },
+        {
+          id: "line-tv",
+          name: "Line TV Sehpa",
+          width: 1.6,
+          depth: 0.42,
+          icon: "L",
+          price: 11900,
+          category: "TV Unitesi",
+          swatch: "black",
+        },
+      ],
+      devices: [
+        {
+          id: "device-modern",
+          name: "Magaza Muduru Telefonu",
+          code: "DR-2088",
+          connected: true,
+          lastSeen: "10 dakika once aktif",
         },
       ],
     },
@@ -43,6 +152,9 @@
       width: Number.isFinite(width) && width > 0 ? width : 1,
       depth: Number.isFinite(depth) && depth > 0 ? depth : 1,
       icon,
+      price: Number(product.price || product.fiyat || 0),
+      category: String(product.category || product.kategori || "Mobilya").trim(),
+      swatch: String(product.swatch || product.renk || "amber").trim(),
     };
   };
 
@@ -101,6 +213,13 @@
     localStorage.setItem(ACTIVE_STORE_KEY, storeId);
   };
 
+  const resetDemoStores = () => {
+    const stores = saveStores(clone(defaultStores));
+
+    localStorage.setItem(ACTIVE_STORE_KEY, stores[0].id);
+    return stores;
+  };
+
   const createDevice = (name) => ({
     id: createId("device"),
     name: String(name || "Yetkili cihaz").trim(),
@@ -115,6 +234,7 @@
     getActiveStoreId,
     loadStores,
     normalizeProduct,
+    resetDemoStores,
     saveStores,
     setActiveStoreId,
   };

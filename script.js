@@ -1,10 +1,44 @@
 const fallbackCatalog = [
-  { id: "koltuk", name: "Uc'lu Koltuk", width: 2.2, depth: 0.9, icon: "K" },
-  { id: "berjer", name: "Berjer", width: 0.8, depth: 0.85, icon: "B" },
-  { id: "sehpa", name: "Orta Sehpa", width: 1.1, depth: 0.6, icon: "S" },
-  { id: "tv", name: "TV Unitesi", width: 1.8, depth: 0.45, icon: "T" },
-  { id: "masa", name: "Yemek Masasi", width: 1.6, depth: 0.9, icon: "M" },
-  { id: "dolap", name: "Vitrin Dolap", width: 1.2, depth: 0.55, icon: "D" },
+  {
+    id: "milano-kose",
+    name: "Milano Kose Takimi",
+    width: 2.75,
+    depth: 1.85,
+    icon: "K",
+    price: 68900,
+    category: "Salon",
+    swatch: "amber",
+  },
+  {
+    id: "luna-berjer",
+    name: "Luna Berjer",
+    width: 0.82,
+    depth: 0.88,
+    icon: "B",
+    price: 12900,
+    category: "Koltuk",
+    swatch: "green",
+  },
+  {
+    id: "nova-sehpa",
+    name: "Nova Orta Sehpa",
+    width: 1.1,
+    depth: 0.62,
+    icon: "S",
+    price: 7900,
+    category: "Tamamlayici",
+    swatch: "walnut",
+  },
+  {
+    id: "arte-tv",
+    name: "Arte TV Unitesi",
+    width: 1.9,
+    depth: 0.45,
+    icon: "T",
+    price: 18400,
+    category: "TV Unitesi",
+    swatch: "stone",
+  },
 ];
 
 const dataStore = window.DexiRoomData;
@@ -55,6 +89,10 @@ const elements = {
   fitStatus: document.querySelector("[data-fit-status]"),
   clearRoom: document.querySelector("[data-clear-room]"),
   resetDemo: document.querySelector("[data-reset-demo]"),
+  demoLayout: document.querySelector("[data-demo-layout]"),
+  quoteList: document.querySelector("[data-quote-list]"),
+  quoteTotal: document.querySelector("[data-quote-total]"),
+  whatsappLink: document.querySelector("[data-whatsapp-link]"),
   stepCards: document.querySelectorAll("[data-step-card]"),
 };
 
@@ -62,6 +100,13 @@ const formatMeter = (value) =>
   Number(value).toLocaleString("tr-TR", {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
+  });
+
+const formatCurrency = (value) =>
+  Number(value || 0).toLocaleString("tr-TR", {
+    style: "currency",
+    currency: "TRY",
+    maximumFractionDigits: 0,
   });
 
 const getStores = () =>
@@ -104,6 +149,32 @@ const syncStoreCatalog = () => {
   renderStoreSelect();
   elements.storeHint.textContent = `${store.name} katalogunda ${catalog.length} urun var.`;
   renderCatalog();
+};
+
+const buildQuoteMessage = () => {
+  const store = getActiveStore();
+  const productLines = state.items
+    .map(
+      (item) =>
+        `- ${item.name} (${formatMeter(item.width)} m x ${formatMeter(item.depth)} m) ${
+          item.price ? formatCurrency(item.price) : ""
+        }`
+    )
+    .join("\n");
+
+  const message = [
+    `Merhaba, ${store.name} katalogundan oda yerlesimi yaptim.`,
+    `Oda olcum: ${formatMeter(state.room.width)} m x ${formatMeter(state.room.depth)} m, yukseklik ${formatMeter(
+      state.room.height
+    )} m.`,
+    "Sectigim urunler:",
+    productLines,
+    "Bu urunler icin teklif almak istiyorum.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return encodeURIComponent(message);
 };
 
 const getScale = () => {
@@ -159,10 +230,16 @@ const renderCatalog = () => {
     .map(
       (product) => `
         <article class="catalog-item">
-          <span class="catalog-thumb">${escapeHtml(product.icon)}</span>
+          <span class="catalog-thumb" data-swatch="${escapeHtml(product.swatch || "amber")}">${escapeHtml(
+        product.icon
+      )}</span>
           <div>
             <strong>${escapeHtml(product.name)}</strong>
             <small>${formatMeter(product.width)} m x ${formatMeter(product.depth)} m</small>
+            <div class="catalog-meta">
+              <span>${escapeHtml(product.category || "Mobilya")}</span>
+              <span>${formatCurrency(product.price)}</span>
+            </div>
           </div>
           <button type="button" data-add-product="${escapeHtml(product.id)}" aria-label="${escapeHtml(
         product.name
@@ -182,6 +259,9 @@ const createItem = (product) => {
     name: product.name,
     width: product.width,
     depth: product.depth,
+    price: product.price || 0,
+    icon: product.icon || "U",
+    swatch: product.swatch || "amber",
     x: Math.min(Math.max(0.2 + offset, 0), Math.max(state.room.width - product.width, 0)),
     y: Math.min(Math.max(0.2 + offset, 0), Math.max(state.room.depth - product.depth, 0)),
   });
@@ -298,6 +378,36 @@ const updateFitStatus = (conflictCount) => {
     "<strong>Yerlesim uygun</strong><span>Urunler oda icinde ve birbirine temas etmiyor.</span>";
 };
 
+const renderQuote = () => {
+  if (!state.items.length) {
+    elements.quoteList.innerHTML = '<p class="quote-empty">Henuz urun eklenmedi.</p>';
+    elements.quoteTotal.textContent = formatCurrency(0);
+    elements.whatsappLink.href = "#";
+    elements.whatsappLink.classList.add("is-disabled-link");
+    return;
+  }
+
+  const total = state.items.reduce((sum, item) => sum + Number(item.price || 0), 0);
+
+  elements.quoteList.innerHTML = state.items
+    .map(
+      (item) => `
+        <article class="quote-item">
+          <span class="quote-item-icon">${escapeHtml(item.icon || "U")}</span>
+          <div>
+            <strong>${escapeHtml(item.name)}</strong>
+            <small>${formatMeter(item.width)} m x ${formatMeter(item.depth)} m</small>
+          </div>
+          <strong>${formatCurrency(item.price)}</strong>
+        </article>
+      `
+    )
+    .join("");
+  elements.quoteTotal.textContent = formatCurrency(total);
+  elements.whatsappLink.href = `https://wa.me/?text=${buildQuoteMessage()}`;
+  elements.whatsappLink.classList.remove("is-disabled-link");
+};
+
 const renderPlanner = () => {
   const existingItems = elements.roomStage.querySelectorAll(".furniture-item");
   existingItems.forEach((item) => item.remove());
@@ -320,6 +430,7 @@ const renderPlanner = () => {
     node.type = "button";
     node.className = "furniture-item";
     node.dataset.itemId = item.uid;
+    node.dataset.swatch = item.swatch || "amber";
     node.style.left = `${item.x * scale.x}px`;
     node.style.top = `${item.y * scale.y}px`;
     node.style.width = `${item.width * scale.x}px`;
@@ -334,6 +445,7 @@ const renderPlanner = () => {
 
   renderConflictZones(zones);
   updateFitStatus(conflictIds.size);
+  renderQuote();
   setStepState();
 };
 
@@ -391,7 +503,50 @@ const endDrag = () => {
   renderPlanner();
 };
 
+const loadDemoLayout = () => {
+  if (dataStore && dataStore.resetDemoStores) {
+    const stores = dataStore.resetDemoStores();
+    state.storeId = stores[0].id;
+  }
+
+  state.approved = true;
+  state.room = { width: 4, depth: 3.5, height: 2.6 };
+  elements.roomForm.elements.width.value = state.room.width;
+  elements.roomForm.elements.depth.value = state.room.depth;
+  elements.roomForm.elements.height.value = state.room.height;
+  syncStoreCatalog();
+
+  const byId = (id) => catalog.find((product) => product.id === id);
+  const sample = [
+    { product: byId("milano-kose"), x: 0.25, y: 0.25 },
+    { product: byId("arte-tv"), x: 1.0, y: 2.85 },
+    { product: byId("nova-sehpa"), x: 1.65, y: 1.7 },
+    { product: byId("luna-berjer"), x: 3.0, y: 1.0 },
+  ].filter((entry) => entry.product);
+
+  state.items = sample.map((entry, index) => ({
+    uid: `${entry.product.id}-demo-${index}`,
+    productId: entry.product.id,
+    name: entry.product.name,
+    width: entry.product.width,
+    depth: entry.product.depth,
+    price: entry.product.price || 0,
+    icon: entry.product.icon || "U",
+    swatch: entry.product.swatch || "amber",
+    x: entry.x,
+    y: entry.y,
+  }));
+
+  setApproved(true);
+  document.querySelector("#planner").scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
 const resetDemo = () => {
+  if (dataStore && dataStore.resetDemoStores) {
+    const stores = dataStore.resetDemoStores();
+    state.storeId = stores[0].id;
+  }
+
   state.approved = false;
   state.room = { width: 4, depth: 3.5, height: 2.6 };
   state.items = [];
@@ -455,6 +610,7 @@ elements.clearRoom.addEventListener("click", () => {
 });
 
 elements.resetDemo.addEventListener("click", resetDemo);
+elements.demoLayout.addEventListener("click", loadDemoLayout);
 elements.roomStage.addEventListener("pointermove", moveDrag);
 elements.roomStage.addEventListener("pointerup", endDrag);
 elements.roomStage.addEventListener("pointercancel", endDrag);

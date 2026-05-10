@@ -26,6 +26,16 @@ Demo yonetim paneli icin:
 
 Panel adresi: `admin.html`
 
+## Demo Akisi
+
+Musteri demosu icin `index.html` sayfasinda:
+
+1. `Ornek yerlesimi yukle` butonuna basin.
+2. Demo magaza katalogu ve ornek oda yerlesimi otomatik yuklenir.
+3. Urunleri oda planinda surukleyerek yesil/kirmizi uygunluk durumunu gorebilirsiniz.
+4. Alt kisimdaki teklif onizlemesinde secilen urunler ve tahmini toplam gorunur.
+5. `WhatsApp ile teklif iste` butonu demo teklif mesajini hazirlar.
+
 ## Dosyalar
 
 - `index.html` - QR akisi, onay paneli, oda formu ve planlayici arayuzu
