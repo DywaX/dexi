@@ -15,7 +15,7 @@
           depth: 1.85,
           icon: "K",
           price: 68900,
-          category: "Salon",
+          category: "Kose Takimi",
           swatch: "amber",
           shape: [
             { x: 0, y: 0, width: 2.75, depth: 0.9, label: "Oturma" },
@@ -29,7 +29,7 @@
           depth: 0.88,
           icon: "B",
           price: 12900,
-          category: "Koltuk",
+          category: "Berjer",
           swatch: "green",
         },
         {
@@ -39,7 +39,7 @@
           depth: 0.62,
           icon: "S",
           price: 7900,
-          category: "Tamamlayici",
+          category: "Sehpa",
           swatch: "walnut",
         },
         {
@@ -59,7 +59,7 @@
           depth: 0.95,
           icon: "M",
           price: 24600,
-          category: "Yemek Odasi",
+          category: "Yemek Masasi",
           swatch: "oak",
         },
         {
@@ -69,7 +69,7 @@
           depth: 0.48,
           icon: "V",
           price: 16900,
-          category: "Yemek Odasi",
+          category: "Konsol",
           swatch: "cream",
         },
       ],
@@ -95,7 +95,7 @@
           depth: 0.92,
           icon: "A",
           price: 32900,
-          category: "Koltuk",
+          category: "3'lu Koltuk",
           swatch: "blue",
         },
         {
@@ -105,7 +105,7 @@
           depth: 0.88,
           icon: "R",
           price: 24900,
-          category: "Koltuk",
+          category: "2'li Koltuk",
           swatch: "gray",
         },
         {
@@ -115,7 +115,7 @@
           depth: 0.7,
           icon: "P",
           price: 5400,
-          category: "Tamamlayici",
+          category: "Puf",
           swatch: "rose",
         },
         {

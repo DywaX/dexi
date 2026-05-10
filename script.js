@@ -6,7 +6,7 @@ const fallbackCatalog = [
     depth: 1.85,
     icon: "K",
     price: 68900,
-    category: "Salon",
+    category: "Kose Takimi",
     swatch: "amber",
     shape: [
       { x: 0, y: 0, width: 2.75, depth: 0.9, label: "Oturma" },
@@ -20,7 +20,7 @@ const fallbackCatalog = [
     depth: 0.88,
     icon: "B",
     price: 12900,
-    category: "Koltuk",
+    category: "Berjer",
     swatch: "green",
   },
   {
@@ -30,7 +30,7 @@ const fallbackCatalog = [
     depth: 0.62,
     icon: "S",
     price: 7900,
-    category: "Tamamlayici",
+    category: "Sehpa",
     swatch: "walnut",
   },
   {
@@ -73,6 +73,7 @@ const state = {
   },
   items: [],
   dragging: null,
+  activeCategory: "all",
 };
 
 const elements = {
@@ -83,6 +84,7 @@ const elements = {
   roomSection: document.querySelector("[data-room-section]"),
   catalogSection: document.querySelector("[data-catalog-section]"),
   catalogList: document.querySelector("[data-catalog-list]"),
+  categoryFilters: document.querySelector("[data-category-filters]"),
   currentStoreName: document.querySelector("[data-current-store-name]"),
   currentStoreTitle: document.querySelector("[data-current-store-title]"),
   currentStoreGroup: document.querySelector("[data-current-store-group]"),
@@ -184,10 +186,12 @@ const syncStoreCatalog = () => {
   const store = getActiveStore();
 
   catalog = store.products.length > 0 ? store.products : [...fallbackCatalog];
+  state.activeCategory = "all";
   elements.currentStoreName.textContent = store.name;
   elements.currentStoreTitle.textContent = store.name;
   elements.currentStoreGroup.textContent = store.groupName || "Grupsuz";
   elements.storeHint.textContent = `${store.name} QR katalogunda ${catalog.length} urun var.`;
+  renderCategoryFilters();
   renderCatalog();
 };
 
@@ -354,8 +358,33 @@ const setApproved = (approved) => {
   renderPlanner();
 };
 
+const renderCategoryFilters = () => {
+  const categories = ["all", ...new Set(catalog.map((product) => product.category || "Mobilya"))];
+
+  elements.categoryFilters.innerHTML = categories
+    .map((category) => {
+      const label = category === "all" ? "Tum urunler" : category;
+
+      return `
+        <button
+          class="${state.activeCategory === category ? "is-active" : ""}"
+          type="button"
+          data-category-filter="${escapeHtml(category)}"
+        >
+          ${escapeHtml(label)}
+        </button>
+      `;
+    })
+    .join("");
+};
+
 const renderCatalog = () => {
-  elements.catalogList.innerHTML = catalog
+  const visibleProducts =
+    state.activeCategory === "all"
+      ? catalog
+      : catalog.filter((product) => (product.category || "Mobilya") === state.activeCategory);
+
+  elements.catalogList.innerHTML = visibleProducts
     .map(
       (product) => `
         <article class="catalog-item">
@@ -788,6 +817,22 @@ elements.catalogList.addEventListener("click", (event) => {
   if (product) {
     createItem(product);
   }
+});
+
+elements.categoryFilters.addEventListener("click", (event) => {
+  if (!(event.target instanceof Element)) {
+    return;
+  }
+
+  const button = event.target.closest("[data-category-filter]");
+
+  if (!button) {
+    return;
+  }
+
+  state.activeCategory = button.dataset.categoryFilter || "all";
+  renderCategoryFilters();
+  renderCatalog();
 });
 
 elements.clearRoom.addEventListener("click", () => {
