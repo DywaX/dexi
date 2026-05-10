@@ -146,32 +146,52 @@
   const createId = (prefix) =>
     `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
+  const buildCornerShape = (product, width, depth) => {
+    const text = `${product.id || ""} ${product.name || ""} ${product.category || ""}`.toLowerCase();
+
+    if (!text.includes("kose")) {
+      return [];
+    }
+
+    const seatDepth = Math.min(depth * 0.5, 0.9);
+    const chaiseWidth = Math.min(width * 0.42, 1.1);
+
+    return [
+      { x: 0, y: 0, width, depth: seatDepth, label: "Oturma" },
+      { x: 0, y: seatDepth, width: chaiseWidth, depth: depth - seatDepth, label: "Uzanma" },
+    ].filter((part) => part.width > 0 && part.depth > 0);
+  };
+
   const normalizeProduct = (product, index) => {
     const name = String(product.name || product.urun || product.title || `Urun ${index + 1}`).trim();
     const width = Number(product.width || product.genislik || product.en || 1);
     const depth = Number(product.depth || product.derinlik || product.boy || 1);
     const icon = String(product.icon || name.charAt(0) || "U").trim().charAt(0).toUpperCase();
+    const normalizedWidth = Number.isFinite(width) && width > 0 ? width : 1;
+    const normalizedDepth = Number.isFinite(depth) && depth > 0 ? depth : 1;
+    const explicitShape = Array.isArray(product.shape)
+      ? product.shape
+          .map((part) => ({
+            x: Number(part.x || 0),
+            y: Number(part.y || 0),
+            width: Number(part.width || part.w || 0),
+            depth: Number(part.depth || part.d || 0),
+            label: String(part.label || "").trim(),
+          }))
+          .filter((part) => part.width > 0 && part.depth > 0)
+      : [];
 
     return {
       id: String(product.id || createId("product")),
       name,
-      width: Number.isFinite(width) && width > 0 ? width : 1,
-      depth: Number.isFinite(depth) && depth > 0 ? depth : 1,
+      width: normalizedWidth,
+      depth: normalizedDepth,
       icon,
       price: Number(product.price || product.fiyat || 0),
       category: String(product.category || product.kategori || "Mobilya").trim(),
       swatch: String(product.swatch || product.renk || "amber").trim(),
-      shape: Array.isArray(product.shape)
-        ? product.shape
-            .map((part) => ({
-              x: Number(part.x || 0),
-              y: Number(part.y || 0),
-              width: Number(part.width || part.w || 0),
-              depth: Number(part.depth || part.d || 0),
-              label: String(part.label || "").trim(),
-            }))
-            .filter((part) => part.width > 0 && part.depth > 0)
-        : [],
+      shape:
+        explicitShape.length > 0 ? explicitShape : buildCornerShape(product, normalizedWidth, normalizedDepth),
     };
   };
 

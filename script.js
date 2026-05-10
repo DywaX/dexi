@@ -232,9 +232,31 @@ const getScale = () => {
 
 const normalizeRotation = (angle) => ((Number(angle || 0) % 360) + 360) % 360;
 
+const buildCornerShape = (item) => {
+  const text = `${item.productId || item.id || ""} ${item.name || ""} ${item.category || ""}`.toLowerCase();
+
+  if (!text.includes("kose")) {
+    return [];
+  }
+
+  const seatDepth = Math.min(item.depth * 0.5, 0.9);
+  const chaiseWidth = Math.min(item.width * 0.42, 1.1);
+
+  return [
+    { x: 0, y: 0, width: item.width, depth: seatDepth, label: "Oturma" },
+    { x: 0, y: seatDepth, width: chaiseWidth, depth: item.depth - seatDepth, label: "Uzanma" },
+  ].filter((part) => part.width > 0 && part.depth > 0);
+};
+
 const getBaseParts = (item) => {
   if (Array.isArray(item.shape) && item.shape.length > 0) {
     return item.shape;
+  }
+
+  const derivedShape = buildCornerShape(item);
+
+  if (derivedShape.length > 0) {
+    return derivedShape;
   }
 
   return [{ x: 0, y: 0, width: item.width, depth: item.depth, label: item.name }];
@@ -418,7 +440,11 @@ const createItem = (product) => {
     price: product.price || 0,
     icon: product.icon || "U",
     swatch: product.swatch || "amber",
-    shape: Array.isArray(product.shape) ? product.shape : [],
+    category: product.category || "Mobilya",
+    shape:
+      Array.isArray(product.shape) && product.shape.length > 0
+        ? product.shape
+        : buildCornerShape(product),
     rotation: 0,
     x: Math.min(Math.max(0.2 + offset, 0), Math.max(state.room.width - product.width, 0)),
     y: Math.min(Math.max(0.2 + offset, 0), Math.max(state.room.depth - product.depth, 0)),
@@ -760,7 +786,11 @@ const loadDemoLayout = () => {
     price: entry.product.price || 0,
     icon: entry.product.icon || "U",
     swatch: entry.product.swatch || "amber",
-    shape: Array.isArray(entry.product.shape) ? entry.product.shape : [],
+    category: entry.product.category || "Mobilya",
+    shape:
+      Array.isArray(entry.product.shape) && entry.product.shape.length > 0
+        ? entry.product.shape
+        : buildCornerShape(entry.product),
     rotation: entry.rotation || 0,
     x: entry.x,
     y: entry.y,
