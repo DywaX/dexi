@@ -56,6 +56,7 @@ magazanin katalogunu gorur.
 - `admin.js` - Panel girisi, katalog yukleme ve cihaz baglanti yonetimi
 - `site-config.js` - Canli domain ve iletisim e-postasi (QR linkleri ve footer)
 - `404.html` ve `robots.txt` - Temel web sunucu dosyalari
+- `netlify.toml` - Sirukle-birak (Netlify Drop) ile canli teknik yayin uyumu
 - `.github/workflows/deploy-pages.yml` - GitHub Pages otomatik yayin (main branch)
 - `supabase-config.js` - Supabase API (yalniz kamusal anahtar)
 - `supabase-schema.sql` - Veritabani semasi
@@ -70,6 +71,12 @@ python3 -m http.server 8000
 ```
 
 Ardindan `http://localhost:8000` adresini ziyaret edin.
+
+**Not:** Bazi CDN linkleri (`jsdelivr.net` ile dogrudan `index.html`) dosyayi
+`text/plain` olarak sunabilir ve tarayici kod gibi goruntuler. Gercek sayfa için
+ klasoru veya ZIP cikmis halini **`https://app.netlify.com/drop`** adresine
+ suruklemen yeterli; `netlify.toml` dahil uygun MIME ile servis verilir.
+GitHub'in `raw.` adresini degil, yerel dosya ya da Pages / Netlify kullan.
 
 ## Canli site: domain, Gmail, GitHub Pages
 

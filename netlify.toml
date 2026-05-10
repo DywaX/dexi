@@ -1,0 +1,6 @@
+# Statik yayin icin varsayilan Netlify ayari (kurulum gerektirmeyen sirukle-brak uyumlu).
+# https://app.netlify.com/drop adresine klasoru suruklemen yeterli; HTML/CSS/JS
+# uygun MIME turleri ile sunulur (GitHub raw / bazi CDNler kod gibi gosterbilir).
+
+[build]
+  publish = "."
