@@ -625,6 +625,7 @@ const renderPlanner = () => {
     node.setAttribute("aria-label", `${item.name} oda icinde tasinabilir urun`);
     node.dataset.itemId = item.uid;
     node.dataset.swatch = item.swatch || "amber";
+    node.dataset.shape = getBaseParts(item).length > 1 ? "modular" : "single";
     node.style.left = `${item.x * scale.x}px`;
     node.style.top = `${item.y * scale.y}px`;
     node.style.width = `${visualSize.width * scale.x}px`;
